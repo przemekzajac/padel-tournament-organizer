@@ -1,59 +1,82 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTournamentStore } from '@/store/tournamentStore';
-import { Plus, Trophy, Users, LayoutGrid } from 'lucide-react';
+import { Plus, Trophy, Users, LayoutGrid, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import type { Tournament } from '@/types/tournament';
 
-function TournamentCard({ tournament }: { tournament: Tournament }) {
+function TournamentCard({
+  tournament,
+  onDelete,
+}: {
+  tournament: Tournament;
+  onDelete: (id: string) => void;
+}) {
   const navigate = useNavigate();
   const isActive = tournament.status === 'active';
-  const currentRound = tournament.rounds.length;
+  const completedRounds = tournament.rounds.filter(
+    (r) => r.matches.every((m) => m.team_a_score !== null),
+  ).length;
 
   return (
-    <button
-      onClick={() => navigate(`/tournament/${tournament.id}`)}
-      className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 active:bg-gray-50 transition-colors"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-gray-900 truncate pr-2">
-          {tournament.name}
-        </h3>
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
-            isActive
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-600'
-          }`}
-        >
-          {isActive && (
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse" />
+    <div className="flex gap-2 items-stretch">
+      <button
+        onClick={() => navigate(`/tournament/${tournament.id}`)}
+        className="flex-1 text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 active:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-gray-900 truncate pr-2">
+            {tournament.name}
+          </h3>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+              isActive
+                ? 'bg-green-100 text-green-800'
+                : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            {isActive && (
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse" />
+            )}
+            {isActive ? 'Live' : 'Completed'}
+          </span>
+        </div>
+        <div className="flex items-center gap-4 text-sm text-gray-500">
+          <span className="inline-flex items-center gap-1 capitalize">
+            <Trophy className="w-3.5 h-3.5" />
+            {tournament.format}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Users className="w-3.5 h-3.5" />
+            {tournament.players.length}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <LayoutGrid className="w-3.5 h-3.5" />
+            {tournament.court_count} {tournament.court_count === 1 ? 'court' : 'courts'}
+          </span>
+          {completedRounds > 0 && (
+            <span className="text-gray-400">R{completedRounds}</span>
           )}
-          {isActive ? 'Live' : 'Completed'}
-        </span>
-      </div>
-      <div className="flex items-center gap-4 text-sm text-gray-500">
-        <span className="inline-flex items-center gap-1 capitalize">
-          <Trophy className="w-3.5 h-3.5" />
-          {tournament.format}
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <Users className="w-3.5 h-3.5" />
-          {tournament.players.length}
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <LayoutGrid className="w-3.5 h-3.5" />
-          {tournament.court_count} {tournament.court_count === 1 ? 'court' : 'courts'}
-        </span>
-        {currentRound > 0 && (
-          <span className="text-gray-400">Round {currentRound}</span>
-        )}
-      </div>
-    </button>
+        </div>
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(tournament.id);
+        }}
+        className="flex items-center justify-center px-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:bg-red-50 hover:border-red-200 transition-colors"
+        aria-label={`Delete ${tournament.name}`}
+      >
+        <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
+      </button>
+    </div>
   );
 }
 
 export function Home() {
-  const { tournaments, isLoading, loadTournaments } = useTournamentStore();
+  const { tournaments, isLoading, loadTournaments, deleteTournament } =
+    useTournamentStore();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,7 +119,11 @@ export function Home() {
       ) : (
         <div className="flex flex-col gap-3">
           {tournaments.map((t) => (
-            <TournamentCard key={t.id} tournament={t} />
+            <TournamentCard
+              key={t.id}
+              tournament={t}
+              onDelete={setDeleteId}
+            />
           ))}
         </div>
       )}
@@ -109,6 +136,19 @@ export function Home() {
         >
           <Plus className="w-6 h-6" />
         </button>
+      )}
+
+      {deleteId && (
+        <ConfirmDialog
+          title="Delete tournament?"
+          message="This will permanently remove this tournament and all its data."
+          confirmLabel="Delete"
+          onConfirm={async () => {
+            await deleteTournament(deleteId);
+            setDeleteId(null);
+          }}
+          onCancel={() => setDeleteId(null)}
+        />
       )}
     </div>
   );

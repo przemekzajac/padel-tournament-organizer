@@ -44,7 +44,12 @@ export function Tournament() {
 
   const tournament = currentTournament;
   const isCompleted = tournament.status === 'completed';
-  const currentRound = tournament.rounds[tournament.rounds.length - 1];
+
+  // Find current round: first round without scores (for Americano pre-generated)
+  // or the last round (for Mexicano/Mixicano where rounds are added dynamically)
+  const currentRound = tournament.rounds.find(
+    (r) => r.matches.some((m) => m.team_a_score === null),
+  ) ?? tournament.rounds[tournament.rounds.length - 1];
 
   const handleSubmitRound = async (
     scores: Map<number, { a: number; b: number }>,

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useTournamentStore } from '@/store/tournamentStore';
 import { generateInitialRound } from '@/algorithms/initialRound';
+import { generateAmericanoSchedule } from '@/algorithms/americano';
 import { Step1Name } from './Step1Name';
 import { Step2Format } from './Step2Format';
 import { Step3Players } from './Step3Players';
@@ -60,14 +61,26 @@ export function CreateTournament() {
         [],
       );
 
-      // Generate initial round after tournament is created (need player IDs)
-      const initialRound = generateInitialRound(
-        tournament.players,
-        tournament.court_count,
-        tournament.format,
-      );
+      // Generate rounds after tournament is created (need player IDs)
+      let rounds;
+      if (tournament.format === 'americano') {
+        // Pre-generate full schedule for Americano
+        rounds = generateAmericanoSchedule(
+          tournament.players,
+          tournament.court_count,
+          50,
+        );
+      } else {
+        // Mexicano/Mixicano: generate only round 1
+        const initialRound = generateInitialRound(
+          tournament.players,
+          tournament.court_count,
+          tournament.format,
+        );
+        rounds = [initialRound];
+      }
 
-      const updated = { ...tournament, rounds: [initialRound] };
+      const updated = { ...tournament, rounds };
       await useTournamentStore.getState().updateTournament(updated);
 
       navigate(`/tournament/${tournament.id}`);
