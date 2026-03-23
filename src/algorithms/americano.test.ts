@@ -133,4 +133,116 @@ describe('generateAmericanoSchedule', () => {
     const pairedCount = partnerMap.size;
     expect(pairedCount).toBeGreaterThan(20); // At least 20 of 28 pairs
   });
+
+  it('no player appears on both teams in the same match', () => {
+    const players = makePlayers(8);
+    const rounds = generateAmericanoSchedule(players, 2, 10);
+
+    for (const round of rounds) {
+      for (const match of round.matches) {
+        const overlap = match.team_a_player_ids.filter((id) =>
+          match.team_b_player_ids.includes(id),
+        );
+        expect(overlap).toHaveLength(0);
+      }
+    }
+  });
+
+  it('partnership minimization: max partnership count is reasonable over many rounds', () => {
+    const players = makePlayers(8);
+    const rounds = generateAmericanoSchedule(players, 2, 30);
+
+    const partnerMap = new Map<string, number>();
+    for (const round of rounds) {
+      for (const match of round.matches) {
+        for (const team of [match.team_a_player_ids, match.team_b_player_ids]) {
+          const key = [team[0], team[1]].sort().join('-');
+          partnerMap.set(key, (partnerMap.get(key) || 0) + 1);
+        }
+      }
+    }
+
+    const maxCount = Math.max(...partnerMap.values());
+    // With C(8,2)=28 pairs and 30 rounds (60 partnerships total), max should be < 15
+    expect(maxCount).toBeLessThan(15);
+  });
+
+  it('large group no bench: 16 players, 4 courts', () => {
+    const players = makePlayers(16);
+    const rounds = generateAmericanoSchedule(players, 4, 5);
+
+    expect(rounds).toHaveLength(5);
+    for (const round of rounds) {
+      expect(round.benched_player_ids).toHaveLength(0);
+      expect(round.matches).toHaveLength(4);
+    }
+  });
+
+  it('large group with bench: 17 players, 4 courts', () => {
+    const players = makePlayers(17);
+    const rounds = generateAmericanoSchedule(players, 4, 10);
+
+    expect(rounds).toHaveLength(10);
+    for (const round of rounds) {
+      expect(round.benched_player_ids).toHaveLength(1);
+      expect(round.matches).toHaveLength(4);
+    }
+  });
+
+  it('single round: maxRounds=1 produces exactly 1 round', () => {
+    const players = makePlayers(8);
+    const rounds = generateAmericanoSchedule(players, 2, 1);
+
+    expect(rounds).toHaveLength(1);
+  });
+
+  it('round numbering is sequential starting from 1', () => {
+    const players = makePlayers(8);
+    const rounds = generateAmericanoSchedule(players, 2, 10);
+
+    for (let i = 0; i < rounds.length; i++) {
+      expect(rounds[i].round_number).toBe(i + 1);
+    }
+  });
+
+  it('court numbering is 1 through courtCount in each round', () => {
+    const players = makePlayers(12);
+    const courtCount = 3;
+    const rounds = generateAmericanoSchedule(players, courtCount, 5);
+
+    for (const round of rounds) {
+      const courtNumbers = round.matches.map((m) => m.court_number).sort((a, b) => a - b);
+      expect(courtNumbers).toEqual([1, 2, 3]);
+    }
+  });
+
+  it('all scores are null in every generated match', () => {
+    const players = makePlayers(8);
+    const rounds = generateAmericanoSchedule(players, 2, 5);
+
+    for (const round of rounds) {
+      for (const match of round.matches) {
+        expect(match.team_a_score).toBeNull();
+        expect(match.team_b_score).toBeNull();
+      }
+    }
+  });
+
+  it('all possible pairs eventually partner over enough rounds', () => {
+    const players = makePlayers(8);
+    const rounds = generateAmericanoSchedule(players, 2, 50);
+
+    const partnerSet = new Set<string>();
+    for (const round of rounds) {
+      for (const match of round.matches) {
+        for (const team of [match.team_a_player_ids, match.team_b_player_ids]) {
+          const key = [team[0], team[1]].sort().join('-');
+          partnerSet.add(key);
+        }
+      }
+    }
+
+    // All C(8,2) = 28 pairs should have partnered at least once
+    expect(partnerSet.size).toBe(28);
+  });
 });
