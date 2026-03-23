@@ -6,6 +6,7 @@ import type {
   PointsPerMatch,
 } from '@/types/tournament';
 import { isValidScore } from '@/algorithms/scoring';
+import { ScorePickerSheet } from '@/components/ScorePickerSheet';
 
 interface Props {
   tournament: Tournament;
@@ -15,22 +16,21 @@ interface Props {
 
 function ScoreInput({
   match,
-  pointsPerMatch,
   scores,
-  onScoreChange,
+  onOpenPicker,
   playerNames,
 }: {
   match: Match;
-  pointsPerMatch: PointsPerMatch;
   scores: { a: string; b: string };
-  onScoreChange: (court: number, team: 'a' | 'b', value: string) => void;
+  onOpenPicker: (court: number, team: 'a' | 'b', teamLabel: string) => void;
   playerNames: Map<string, string>;
 }) {
-  const scoreA = scores.a === '' ? null : parseInt(scores.a, 10);
-  const scoreB = scores.b === '' ? null : parseInt(scores.b, 10);
-  const hasValues = scores.a !== '' && scores.b !== '';
-  const valid = hasValues && isValidScore(scoreA, scoreB, pointsPerMatch);
-  const showError = hasValues && !valid;
+  const teamALabel = match.team_a_player_ids
+    .map((id) => playerNames.get(id))
+    .join(' & ');
+  const teamBLabel = match.team_b_player_ids
+    .map((id) => playerNames.get(id))
+    .join(' & ');
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
@@ -41,60 +41,57 @@ function ScoreInput({
         {/* Team A */}
         <div className="flex-1 text-right">
           <p className="text-sm font-medium text-gray-800 truncate">
-            {match.team_a_player_ids.map((id) => playerNames.get(id)).join(' & ')}
+            {teamALabel}
           </p>
         </div>
 
-        {/* Score inputs */}
+        {/* Score buttons */}
         <div className="flex items-center gap-2">
-          <input
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max={pointsPerMatch}
-            value={scores.a}
-            onChange={(e) =>
-              onScoreChange(match.court_number, 'a', e.target.value)
+          <button
+            type="button"
+            onClick={() =>
+              onOpenPicker(match.court_number, 'a', teamALabel)
             }
-            className={`w-14 h-14 text-center text-xl font-bold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-primary ${
-              showError ? 'border-red-300' : 'border-gray-200'
+            className={`w-14 h-14 flex items-center justify-center text-xl font-bold rounded-lg border-2 transition-colors ${
+              scores.a
+                ? 'border-primary bg-primary/5 text-gray-900'
+                : 'border-gray-200 text-gray-300'
             }`}
             aria-label={`Team A score, Court ${match.court_number}`}
-          />
+          >
+            {scores.a || '–'}
+          </button>
           <span className="text-gray-400 font-bold">:</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max={pointsPerMatch}
-            value={scores.b}
-            onChange={(e) =>
-              onScoreChange(match.court_number, 'b', e.target.value)
+          <button
+            type="button"
+            onClick={() =>
+              onOpenPicker(match.court_number, 'b', teamBLabel)
             }
-            className={`w-14 h-14 text-center text-xl font-bold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-primary ${
-              showError ? 'border-red-300' : 'border-gray-200'
+            className={`w-14 h-14 flex items-center justify-center text-xl font-bold rounded-lg border-2 transition-colors ${
+              scores.b
+                ? 'border-primary bg-primary/5 text-gray-900'
+                : 'border-gray-200 text-gray-300'
             }`}
             aria-label={`Team B score, Court ${match.court_number}`}
-          />
+          >
+            {scores.b || '–'}
+          </button>
         </div>
 
         {/* Team B */}
         <div className="flex-1 text-left">
           <p className="text-sm font-medium text-gray-800 truncate">
-            {match.team_b_player_ids.map((id) => playerNames.get(id)).join(' & ')}
+            {teamBLabel}
           </p>
         </div>
       </div>
-      {showError && (
-        <p className="text-xs text-red-500 mt-2 text-center">
-          Scores must add up to {pointsPerMatch}
-        </p>
-      )}
     </div>
   );
 }
 
 export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) {
+  const pointsPerMatch = tournament.points_per_match;
+
   const [scores, setScores] = useState<
     Map<number, { a: string; b: string }>
   >(() => {
@@ -108,22 +105,38 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
     return map;
   });
 
+  const [pickerTarget, setPickerTarget] = useState<{
+    court: number;
+    team: 'a' | 'b';
+    teamLabel: string;
+  } | null>(null);
+
   // Player name lookup
   const playerNames = new Map(
     tournament.players.map((p) => [p.id, p.name]),
   );
 
-  const handleScoreChange = (
+  const handleOpenPicker = (
     court: number,
     team: 'a' | 'b',
-    value: string,
+    teamLabel: string,
   ) => {
+    setPickerTarget({ court, team, teamLabel });
+  };
+
+  const handleScoreSelect = (value: number) => {
+    if (!pickerTarget) return;
+    const { court, team } = pickerTarget;
+    const other = pointsPerMatch - value;
     setScores((prev) => {
       const next = new Map(prev);
-      const current = next.get(court) || { a: '', b: '' };
-      next.set(court, { ...current, [team]: value });
+      next.set(court, {
+        a: team === 'a' ? String(value) : String(other),
+        b: team === 'b' ? String(value) : String(other),
+      });
       return next;
     });
+    setPickerTarget(null);
   };
 
   // Check if all scores are valid
@@ -133,7 +146,7 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
     return isValidScore(
       parseInt(s.a, 10),
       parseInt(s.b, 10),
-      tournament.points_per_match,
+      pointsPerMatch,
     );
   });
 
@@ -150,6 +163,17 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
     (id) => playerNames.get(id) || id,
   );
 
+  // Get current value for the picker
+  const pickerCurrentValue =
+    pickerTarget
+      ? (() => {
+          const s = scores.get(pickerTarget.court);
+          if (!s) return null;
+          const raw = pickerTarget.team === 'a' ? s.a : s.b;
+          return raw === '' ? null : parseInt(raw, 10);
+        })()
+      : null;
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto space-y-3 pb-4">
@@ -161,9 +185,8 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
           <ScoreInput
             key={match.court_number}
             match={match}
-            pointsPerMatch={tournament.points_per_match}
             scores={scores.get(match.court_number) || { a: '', b: '' }}
-            onScoreChange={handleScoreChange}
+            onOpenPicker={handleOpenPicker}
             playerNames={playerNames}
           />
         ))}
@@ -187,6 +210,16 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
       >
         Next Round
       </button>
+
+      {pickerTarget && (
+        <ScorePickerSheet
+          pointsPerMatch={pointsPerMatch}
+          teamLabel={pickerTarget.teamLabel}
+          currentValue={pickerCurrentValue}
+          onSelect={handleScoreSelect}
+          onClose={() => setPickerTarget(null)}
+        />
+      )}
     </div>
   );
 }
