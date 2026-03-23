@@ -90,8 +90,8 @@ export function Step3Players({ format, value, onNext }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Add players</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-50 mb-2">Add players</h2>
+        <p className="text-sm text-zinc-400 mb-4">
           {players.length} player{players.length !== 1 ? 's' : ''} added
           {isMixicano && ` · ${males}M / ${females}F`}
         </p>
@@ -108,12 +108,12 @@ export function Step3Players({ format, value, onNext }: Props) {
               }
             }}
             placeholder="Player name"
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="flex-1 px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <button
             onClick={addPlayer}
             disabled={!inputName.trim()}
-            className="px-4 py-3 bg-primary text-white rounded-xl disabled:opacity-40 hover:bg-primary-dark transition-colors"
+            className="px-4 py-3 bg-primary text-zinc-950 rounded-xl disabled:opacity-40 hover:bg-primary-light transition-colors"
             aria-label="Add player"
           >
             <Plus className="w-5 h-5" />
@@ -125,25 +125,25 @@ export function Step3Players({ format, value, onNext }: Props) {
             {players.map((player, i) => (
               <div
                 key={i}
-                className="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                className="inline-flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm"
               >
                 {isMixicano && (
                   <button
                     onClick={() => toggleGender(i)}
                     className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
                       player.gender === 'male'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-pink-100 text-pink-700'
+                        ? 'bg-blue-500/15 text-blue-400'
+                        : 'bg-pink-500/15 text-pink-400'
                     }`}
                     aria-label={`Toggle gender for ${player.name}`}
                   >
                     {player.gender === 'male' ? 'M' : 'F'}
                   </button>
                 )}
-                <span className="text-gray-800">{player.name}</span>
+                <span className="text-zinc-200">{player.name}</span>
                 <button
                   onClick={() => removePlayer(i)}
-                  className="text-gray-400 hover:text-red-500 ml-1"
+                  className="text-zinc-600 hover:text-red-400 ml-1"
                   aria-label={`Remove ${player.name}`}
                 >
                   <X className="w-3.5 h-3.5" />
@@ -156,7 +156,7 @@ export function Step3Players({ format, value, onNext }: Props) {
         {errors.length > 0 && players.length > 0 && (
           <div className="space-y-1 mb-4">
             {errors.map((err, i) => (
-              <p key={i} className="text-sm text-red-500">
+              <p key={i} className="text-sm text-red-400">
                 {err}
               </p>
             ))}
@@ -167,7 +167,7 @@ export function Step3Players({ format, value, onNext }: Props) {
       <button
         onClick={() => onNext(players)}
         disabled={!isValid}
-        className="w-full py-4 bg-primary text-white font-semibold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-dark transition-colors"
+        className="w-full py-4 bg-primary text-zinc-950 font-semibold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-light transition-colors"
       >
         Next
       </button>

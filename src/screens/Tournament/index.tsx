@@ -124,16 +124,16 @@ export function Tournament() {
       <header className="flex items-center gap-3 pt-6 pb-2 shrink-0">
         <button
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 rounded-lg hover:bg-gray-100"
+          className="p-2 -ml-2 rounded-lg hover:bg-zinc-800 transition-colors"
           aria-label="Back to home"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
+          <ArrowLeft className="w-5 h-5 text-zinc-400" />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-bold text-gray-900 truncate">
+          <h1 className="text-lg font-bold tracking-tight text-zinc-50 truncate">
             {tournament.name}
           </h1>
-          <p className="text-xs text-gray-500 capitalize">
+          <p className="text-xs text-zinc-500 capitalize">
             {tournament.format}
             {!isCompleted && currentRound && ` · Round ${currentRound.round_number}`}
             {isCompleted && ' · Completed'}
@@ -142,10 +142,10 @@ export function Tournament() {
         {!isCompleted && (
           <button
             onClick={() => setShowEndConfirm(true)}
-            className="p-2 rounded-lg hover:bg-gray-100"
+            className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
             aria-label="End tournament"
           >
-            <Flag className="w-5 h-5 text-gray-400" />
+            <Flag className="w-5 h-5 text-zinc-500" />
           </button>
         )}
       </header>
@@ -158,8 +158,8 @@ export function Tournament() {
             onClick={() => setActiveTab(i)}
             className={`flex-1 py-2 text-xs font-medium rounded-lg transition-colors ${
               activeTab === i
-                ? 'bg-primary text-white'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-primary text-zinc-950'
+                : 'text-zinc-500 hover:bg-zinc-800/50'
             }`}
           >
             {tab}
@@ -182,7 +182,7 @@ export function Tournament() {
           <div className="w-full h-full shrink-0 px-1">
             {isCompleted ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-gray-400">Tournament completed</p>
+                <p className="text-zinc-500">Tournament completed</p>
               </div>
             ) : currentRound ? (
               <ActiveRound
@@ -193,7 +193,7 @@ export function Tournament() {
               />
             ) : (
               <div className="flex items-center justify-center h-full">
-                <p className="text-gray-400">No rounds yet</p>
+                <p className="text-zinc-500">No rounds yet</p>
               </div>
             )}
           </div>

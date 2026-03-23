@@ -16,10 +16,10 @@ export function Step4Courts({ value, playerCount, onNext }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-50 mb-2">
           Set courts
         </h2>
-        <p className="text-sm text-gray-500 mb-8">
+        <p className="text-sm text-zinc-400 mb-8">
           How many courts are available?
         </p>
 
@@ -27,34 +27,34 @@ export function Step4Courts({ value, playerCount, onNext }: Props) {
           <button
             onClick={() => setCourts(Math.max(1, courts - 1))}
             disabled={courts <= 1}
-            className="w-14 h-14 rounded-full border-2 border-gray-300 flex items-center justify-center disabled:opacity-30 hover:border-gray-400 transition-colors"
+            className="w-14 h-14 rounded-full border-2 border-zinc-700 flex items-center justify-center disabled:opacity-30 hover:border-zinc-600 transition-colors"
             aria-label="Decrease courts"
           >
-            <Minus className="w-5 h-5 text-gray-600" />
+            <Minus className="w-5 h-5 text-zinc-400" />
           </button>
-          <span className="text-6xl font-bold text-gray-900 w-20 text-center tabular-nums">
+          <span className="text-6xl font-bold text-zinc-50 w-20 text-center tabular-nums">
             {courts}
           </span>
           <button
             onClick={() => setCourts(Math.min(maxCourts, courts + 1))}
             disabled={courts >= maxCourts}
-            className="w-14 h-14 rounded-full border-2 border-gray-300 flex items-center justify-center disabled:opacity-30 hover:border-gray-400 transition-colors"
+            className="w-14 h-14 rounded-full border-2 border-zinc-700 flex items-center justify-center disabled:opacity-30 hover:border-zinc-600 transition-colors"
             aria-label="Increase courts"
           >
-            <Plus className="w-5 h-5 text-gray-600" />
+            <Plus className="w-5 h-5 text-zinc-400" />
           </button>
         </div>
 
-        <p className="text-sm text-gray-500 text-center">
+        <p className="text-sm text-zinc-400 text-center">
           {courts * 4} players active per round
           {benchPerRound > 0 && (
-            <span className="text-amber-600">
+            <span className="text-amber-500">
               {' '}
               · {benchPerRound} resting
             </span>
           )}
         </p>
-        <p className="text-xs text-gray-400 text-center mt-1">
+        <p className="text-xs text-zinc-500 text-center mt-1">
           Max {maxCourts} court{maxCourts !== 1 ? 's' : ''} for {playerCount}{' '}
           players
         </p>
@@ -62,7 +62,7 @@ export function Step4Courts({ value, playerCount, onNext }: Props) {
 
       <button
         onClick={() => onNext(courts)}
-        className="w-full py-4 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors"
+        className="w-full py-4 bg-primary text-zinc-950 font-semibold rounded-xl hover:bg-primary-light transition-colors"
       >
         Next
       </button>
