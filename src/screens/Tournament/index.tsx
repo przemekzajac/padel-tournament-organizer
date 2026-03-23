@@ -186,6 +186,7 @@ export function Tournament() {
               </div>
             ) : currentRound ? (
               <ActiveRound
+                key={currentRound.round_number}
                 tournament={tournament}
                 currentRound={currentRound}
                 onSubmitRound={handleSubmitRound}
