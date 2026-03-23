@@ -128,4 +128,70 @@ describe('generateInitialRound', () => {
     expect(round.matches).toHaveLength(1);
     expect(round.benched_player_ids).toHaveLength(0);
   });
+
+  it('handles large tournament: 16 players, 4 courts', () => {
+    const players = makePlayers(16);
+    const round = generateInitialRound(players, 4, 'americano');
+
+    expect(round.matches).toHaveLength(4);
+    expect(round.benched_player_ids).toHaveLength(0);
+
+    const allIds = round.matches.flatMap(m => [
+      ...m.team_a_player_ids,
+      ...m.team_b_player_ids,
+    ]);
+    expect(new Set(allIds).size).toBe(16);
+  });
+
+  it('benches correct count for various sizes', () => {
+    // 5 players, 1 court → 1 benched
+    expect(generateInitialRound(makePlayers(5), 1, 'americano').benched_player_ids).toHaveLength(1);
+    // 6 players, 1 court → 2 benched
+    expect(generateInitialRound(makePlayers(6), 1, 'americano').benched_player_ids).toHaveLength(2);
+    // 7 players, 1 court → 3 benched
+    expect(generateInitialRound(makePlayers(7), 1, 'americano').benched_player_ids).toHaveLength(3);
+    // 9 players, 2 courts → 1 benched
+    expect(generateInitialRound(makePlayers(9), 2, 'americano').benched_player_ids).toHaveLength(1);
+  });
+
+  it('generates mexicano initial round with same structure as americano', () => {
+    const players = makePlayers(8);
+    const round = generateInitialRound(players, 2, 'mexicano');
+
+    expect(round.matches).toHaveLength(2);
+    expect(round.benched_player_ids).toHaveLength(0);
+    expect(round.round_number).toBe(1);
+
+    // Each match has 2 teams of 2
+    for (const match of round.matches) {
+      expect(match.team_a_player_ids).toHaveLength(2);
+      expect(match.team_b_player_ids).toHaveLength(2);
+    }
+  });
+
+  it('initializes all scores to null', () => {
+    const players = makePlayers(8);
+    const round = generateInitialRound(players, 2, 'americano');
+
+    for (const match of round.matches) {
+      expect(match.team_a_score).toBeNull();
+      expect(match.team_b_score).toBeNull();
+    }
+  });
+
+  it('round number is always 1', () => {
+    const players = makePlayers(8);
+
+    expect(generateInitialRound(players, 2, 'americano').round_number).toBe(1);
+    expect(generateInitialRound(players, 2, 'mexicano').round_number).toBe(1);
+
+    const mixedPlayers = makeMixedPlayers(4, 4);
+    expect(generateInitialRound(mixedPlayers, 2, 'mixicano').round_number).toBe(1);
+  });
+
+  it('bench_points is null in initial round', () => {
+    const players = makePlayers(5);
+    const round = generateInitialRound(players, 1, 'americano');
+    expect(round.bench_points).toBeNull();
+  });
 });
