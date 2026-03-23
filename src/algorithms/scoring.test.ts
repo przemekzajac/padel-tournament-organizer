@@ -389,15 +389,15 @@ describe('isRoundComplete', () => {
     const matches = [
       {
         court_number: 1,
-        team_a_player_ids: ['a', 'b'],
-        team_b_player_ids: ['c', 'd'],
+        team_a_player_ids: ['a', 'b'] as [string, string],
+        team_b_player_ids: ['c', 'd'] as [string, string],
         team_a_score: 14,
         team_b_score: 10,
       },
       {
         court_number: 2,
-        team_a_player_ids: ['e', 'f'],
-        team_b_player_ids: ['g', 'h'],
+        team_a_player_ids: ['e', 'f'] as [string, string],
+        team_b_player_ids: ['g', 'h'] as [string, string],
         team_a_score: 18,
         team_b_score: 6,
       },
@@ -410,15 +410,15 @@ describe('isRoundComplete', () => {
     const matches = [
       {
         court_number: 1,
-        team_a_player_ids: ['a', 'b'],
-        team_b_player_ids: ['c', 'd'],
+        team_a_player_ids: ['a', 'b'] as [string, string],
+        team_b_player_ids: ['c', 'd'] as [string, string],
         team_a_score: 14,
         team_b_score: 10,
       },
       {
         court_number: 2,
-        team_a_player_ids: ['e', 'f'],
-        team_b_player_ids: ['g', 'h'],
+        team_a_player_ids: ['e', 'f'] as [string, string],
+        team_b_player_ids: ['g', 'h'] as [string, string],
         team_a_score: null,
         team_b_score: null,
       },

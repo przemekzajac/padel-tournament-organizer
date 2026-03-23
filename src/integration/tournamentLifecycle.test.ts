@@ -69,7 +69,7 @@ describe('Mexicano full tournament lifecycle', () => {
       const scoredRound = assignScores(currentRound, pointsPerMatch);
 
       // Process
-      const { updatedPlayers, benchPoints } = processRoundScores(players, scoredRound, pointsPerMatch);
+      const { updatedPlayers } = processRoundScores(players, scoredRound, pointsPerMatch);
       players = updatedPlayers;
 
       // Verify all active players have updated stats
