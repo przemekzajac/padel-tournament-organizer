@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { PointsPerMatch } from '@/types/tournament';
 
 interface Props {
@@ -34,7 +35,7 @@ export function ScorePickerSheet({
 
   const numbers = Array.from({ length: pointsPerMatch + 1 }, (_, i) => i);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50">
       <div
         className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${
@@ -79,6 +80,7 @@ export function ScorePickerSheet({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
