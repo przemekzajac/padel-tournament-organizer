@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTournamentStore } from '@/store/tournamentStore';
-import { Plus, Trophy, Users, LayoutGrid, Trash2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Plus, Trophy, Users, LayoutGrid, Trash2, LogOut } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import type { Tournament } from '@/types/tournament';
 
@@ -76,6 +77,7 @@ function TournamentCard({
 export function Home() {
   const { tournaments, isLoading, loadTournaments, deleteTournament } =
     useTournamentStore();
+  const { signOut } = useAuth();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -93,9 +95,19 @@ export function Home() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pb-24">
-      <header className="pt-8 pb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Padel Tournament</h1>
-        <p className="text-sm text-gray-500">Organize. Play. Compete.</p>
+      <header className="pt-8 pb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Padel Tournament</h1>
+          <p className="text-sm text-gray-500">Organize. Play. Compete.</p>
+        </div>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors mt-1"
+          aria-label="Sign out"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign out
+        </button>
       </header>
 
       {tournaments.length === 0 ? (

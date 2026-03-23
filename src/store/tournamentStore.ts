@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '@/db/schema';
+import {
+  fetchTournaments as dbFetchTournaments,
+  fetchTournament as dbFetchTournament,
+  insertTournament,
+  upsertTournament,
+  removeTournament,
+} from '@/db/supabase';
 import type {
   Tournament,
   TournamentFormat,
@@ -48,17 +54,14 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
 
   loadTournaments: async () => {
     set({ isLoading: true });
-    const tournaments = await db.tournaments
-      .orderBy('created_at')
-      .reverse()
-      .toArray();
+    const tournaments = await dbFetchTournaments();
     set({ tournaments, isLoading: false });
   },
 
   loadTournament: async (id: string) => {
     set({ isLoading: true });
-    const tournament = await db.tournaments.get(id);
-    set({ currentTournament: tournament ?? null, isLoading: false });
+    const tournament = await dbFetchTournament(id);
+    set({ currentTournament: tournament, isLoading: false });
   },
 
   createTournament: async (
@@ -87,7 +90,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
       rounds: initialRounds,
     };
 
-    await db.tournaments.add(tournament);
+    await insertTournament(tournament);
     set((state) => ({
       tournaments: [tournament, ...state.tournaments],
       currentTournament: tournament,
@@ -96,7 +99,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
   },
 
   updateTournament: async (tournament: Tournament) => {
-    await db.tournaments.put(tournament);
+    await upsertTournament(tournament);
     set((state) => ({
       tournaments: state.tournaments.map((t) =>
         t.id === tournament.id ? tournament : t,
@@ -109,7 +112,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
   },
 
   deleteTournament: async (id: string) => {
-    await db.tournaments.delete(id);
+    await removeTournament(id);
     set((state) => ({
       tournaments: state.tournaments.filter((t) => t.id !== id),
       currentTournament:
@@ -127,7 +130,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
       completed_at: new Date().toISOString(),
     };
 
-    await db.tournaments.put(updated);
+    await upsertTournament(updated);
     set((state) => ({
       tournaments: state.tournaments.map((t) =>
         t.id === id ? updated : t,
@@ -160,7 +163,7 @@ export const useTournamentStore = create<TournamentState>((set, get) => ({
       rounds: updatedRounds,
     };
 
-    await db.tournaments.put(updated);
+    await upsertTournament(updated);
     set((state) => ({
       tournaments: state.tournaments.map((t) =>
         t.id === tournamentId ? updated : t,

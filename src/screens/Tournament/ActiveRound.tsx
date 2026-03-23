@@ -3,7 +3,6 @@ import type {
   Tournament,
   Round,
   Match,
-  PointsPerMatch,
 } from '@/types/tournament';
 import { isValidScore } from '@/algorithms/scoring';
 import { ScorePickerSheet } from '@/components/ScorePickerSheet';

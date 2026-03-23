@@ -1,18 +1,26 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTournamentStore } from './tournamentStore';
-import { db } from '@/db/schema';
+
+// Mock the Supabase data layer
+vi.mock('@/db/supabase', () => ({
+  fetchTournaments: vi.fn().mockResolvedValue([]),
+  fetchTournament: vi.fn().mockResolvedValue(null),
+  insertTournament: vi.fn().mockResolvedValue(undefined),
+  upsertTournament: vi.fn().mockResolvedValue(undefined),
+  removeTournament: vi.fn().mockResolvedValue(undefined),
+}));
 
 describe('tournamentStore', () => {
-  beforeEach(async () => {
-    await db.tournaments.clear();
+  beforeEach(() => {
     useTournamentStore.setState({
       tournaments: [],
       currentTournament: null,
       isLoading: false,
     });
+    vi.clearAllMocks();
   });
 
-  it('creates a tournament and persists it', async () => {
+  it('creates a tournament and updates state', async () => {
     const store = useTournamentStore.getState();
 
     const tournament = await store.createTournament(
@@ -41,41 +49,26 @@ describe('tournamentStore', () => {
     expect(tournament.players).toHaveLength(8);
     expect(tournament.status).toBe('active');
 
-    // Verify persisted to IndexedDB
-    const persisted = await db.tournaments.get(tournament.id);
-    expect(persisted).toBeDefined();
-    expect(persisted!.name).toBe('Test Tournament');
-
     // Verify store state
     const state = useTournamentStore.getState();
     expect(state.tournaments).toHaveLength(1);
   });
 
-  it('loads tournaments from IndexedDB', async () => {
-    const store = useTournamentStore.getState();
-    await store.createTournament(
-      {
-        name: 'T1',
-        format: 'mexicano',
-        points_per_match: 16,
-        court_count: 1,
-        players: [
-          { name: 'A', gender: null },
-          { name: 'B', gender: null },
-          { name: 'C', gender: null },
-          { name: 'D', gender: null },
-          { name: 'E', gender: null },
-          { name: 'F', gender: null },
-          { name: 'G', gender: null },
-          { name: 'H', gender: null },
-        ],
-      },
-      [],
-    );
-
-    // Reset store state to simulate fresh load
-    useTournamentStore.setState({ tournaments: [] });
-    expect(useTournamentStore.getState().tournaments).toHaveLength(0);
+  it('loads tournaments from Supabase', async () => {
+    const { fetchTournaments } = await import('@/db/supabase');
+    const mockTournament = {
+      id: 'test-id',
+      name: 'T1',
+      format: 'mexicano' as const,
+      points_per_match: 16 as const,
+      court_count: 1,
+      status: 'active' as const,
+      created_at: new Date().toISOString(),
+      completed_at: null,
+      players: [],
+      rounds: [],
+    };
+    vi.mocked(fetchTournaments).mockResolvedValueOnce([mockTournament]);
 
     await useTournamentStore.getState().loadTournaments();
     expect(useTournamentStore.getState().tournaments).toHaveLength(1);
@@ -105,10 +98,6 @@ describe('tournamentStore', () => {
     const state = useTournamentStore.getState();
     expect(state.tournaments[0].status).toBe('completed');
     expect(state.tournaments[0].completed_at).toBeDefined();
-
-    // Verify persisted
-    const persisted = await db.tournaments.get(tournament.id);
-    expect(persisted!.status).toBe('completed');
   });
 
   it('deletes a tournament', async () => {
@@ -132,7 +121,5 @@ describe('tournamentStore', () => {
     await useTournamentStore.getState().deleteTournament(tournament.id);
 
     expect(useTournamentStore.getState().tournaments).toHaveLength(0);
-    const persisted = await db.tournaments.get(tournament.id);
-    expect(persisted).toBeUndefined();
   });
 });
