@@ -95,13 +95,13 @@ export function CreateTournament() {
       <header className="flex items-center gap-3 pt-6 pb-4 shrink-0">
         <button
           onClick={goBack}
-          className="p-2 -ml-2 rounded-lg hover:bg-gray-100"
+          className="p-2 -ml-2 rounded-lg hover:bg-zinc-800 transition-colors"
           aria-label={step === 1 ? 'Back to home' : 'Previous step'}
         >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
+          <ArrowLeft className="w-5 h-5 text-zinc-400" />
         </button>
         <div className="flex-1">
-          <p className="text-xs text-gray-400 font-medium">
+          <p className="text-xs text-zinc-500 font-medium">
             Step {step} of {TOTAL_STEPS}
           </p>
         </div>
@@ -113,7 +113,7 @@ export function CreateTournament() {
           <div
             key={i}
             className={`h-1 rounded-full flex-1 transition-colors ${
-              i < step ? 'bg-primary' : 'bg-gray-200'
+              i < step ? 'bg-primary' : 'bg-zinc-800'
             }`}
           />
         ))}

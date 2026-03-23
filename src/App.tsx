@@ -6,7 +6,7 @@ import { Tournament } from '@/screens/Tournament';
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-full bg-gray-50">
+      <div className="min-h-full bg-[#09090B]">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CreateTournament />} />

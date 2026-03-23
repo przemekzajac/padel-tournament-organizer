@@ -37,7 +37,7 @@ export function ScorePickerSheet({
   return (
     <div className="fixed inset-0 z-50">
       <div
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
@@ -47,14 +47,14 @@ export function ScorePickerSheet({
           isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
-        <div className="bg-white rounded-t-2xl max-w-lg mx-auto shadow-xl">
+        <div className="bg-zinc-900 border-t border-zinc-800 rounded-t-2xl max-w-lg mx-auto shadow-xl">
           {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-gray-300" />
+            <div className="w-10 h-1 rounded-full bg-zinc-700" />
           </div>
 
           {/* Header */}
-          <p className="text-sm font-semibold text-gray-700 text-center px-4 pb-3">
+          <p className="text-sm font-semibold text-zinc-300 text-center px-4 pb-3">
             Score for {teamLabel}
           </p>
 
@@ -68,8 +68,8 @@ export function ScorePickerSheet({
                   onClick={() => onSelect(n)}
                   className={`h-12 rounded-xl text-lg font-semibold transition-colors ${
                     n === currentValue
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-gray-800 active:bg-primary active:text-white'
+                      ? 'bg-primary text-zinc-950'
+                      : 'bg-zinc-800 text-zinc-200 active:bg-primary active:text-zinc-950'
                   }`}
                 >
                   {n}

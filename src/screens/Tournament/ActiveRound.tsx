@@ -33,14 +33,14 @@ function ScoreInput({
     .join(' & ');
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-      <p className="text-xs font-medium text-gray-400 mb-3">
+    <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-4">
+      <p className="text-xs font-medium text-zinc-500 mb-3">
         Court {match.court_number}
       </p>
       <div className="flex items-center gap-3">
         {/* Team A */}
         <div className="flex-1 text-right">
-          <p className="text-sm font-medium text-gray-800 truncate">
+          <p className="text-sm font-medium text-zinc-200 truncate">
             {teamALabel}
           </p>
         </div>
@@ -54,14 +54,14 @@ function ScoreInput({
             }
             className={`w-14 h-14 flex items-center justify-center text-xl font-bold rounded-lg border-2 transition-colors ${
               scores.a
-                ? 'border-primary bg-primary/5 text-gray-900'
-                : 'border-gray-200 text-gray-300'
+                ? 'border-primary bg-primary/10 text-zinc-50'
+                : 'border-zinc-700 text-zinc-600'
             }`}
             aria-label={`Team A score, Court ${match.court_number}`}
           >
             {scores.a || '–'}
           </button>
-          <span className="text-gray-400 font-bold">:</span>
+          <span className="text-zinc-600 font-bold">:</span>
           <button
             type="button"
             onClick={() =>
@@ -69,8 +69,8 @@ function ScoreInput({
             }
             className={`w-14 h-14 flex items-center justify-center text-xl font-bold rounded-lg border-2 transition-colors ${
               scores.b
-                ? 'border-primary bg-primary/5 text-gray-900'
-                : 'border-gray-200 text-gray-300'
+                ? 'border-primary bg-primary/10 text-zinc-50'
+                : 'border-zinc-700 text-zinc-600'
             }`}
             aria-label={`Team B score, Court ${match.court_number}`}
           >
@@ -80,7 +80,7 @@ function ScoreInput({
 
         {/* Team B */}
         <div className="flex-1 text-left">
-          <p className="text-sm font-medium text-gray-800 truncate">
+          <p className="text-sm font-medium text-zinc-200 truncate">
             {teamBLabel}
           </p>
         </div>
@@ -177,7 +177,7 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto space-y-3 pb-4">
-        <h2 className="text-lg font-bold text-gray-900">
+        <h2 className="text-lg font-bold tracking-tight text-zinc-50">
           Round {currentRound.round_number}
         </h2>
 
@@ -192,11 +192,11 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
         ))}
 
         {benchedNames.length > 0 && (
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-            <p className="text-xs font-medium text-gray-400 mb-1">
+          <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+            <p className="text-xs font-medium text-zinc-500 mb-1">
               Resting this round
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-zinc-400">
               {benchedNames.join(', ')}
             </p>
           </div>
@@ -206,7 +206,7 @@ export function ActiveRound({ tournament, currentRound, onSubmitRound }: Props) 
       <button
         onClick={handleSubmit}
         disabled={!allValid}
-        className="w-full py-4 bg-primary text-white font-semibold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-dark transition-colors shrink-0"
+        className="w-full py-4 bg-primary text-zinc-950 font-semibold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-light transition-colors shrink-0"
       >
         Next Round
       </button>
